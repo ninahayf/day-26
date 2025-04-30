@@ -3,3 +3,59 @@ title: "day-26"
 format: html
 ---
 
+# Load Libraries 
+```{r setup, include=FALSE}
+library(terra)
+library(ggpubr)
+library(ggplot2)
+library(here)
+```
+
+# Reading Raster Data from GitHub
+```{r}
+# Construct VSI URL for direct reading
+url <- "https://raw.githubusercontent.com/mikejohnson51/csu-ess-330/refs/heads/main/resources/foco-elev-cm.tif"
+vsi_url <- paste0("/vsicurl/", url)
+
+# Read raster from GitHub
+elev_rast <- rast(vsi_url)
+```
+
+# Description of Raster Structure
+```{r}
+elev_rast
+```
+
+# Convert Elevation to Feet 
+```{r}
+elev_rast_ft <- elev_rast * 0.0328084
+```
+
+# Convert Raster to Data Fram
+```{r}
+elev_df <- values(elev_rast_ft, dataframe = TRUE)
+colnames(elev_df) <- "elevation_ft"
+```
+
+# Plot Density of Elevation in Feet
+```{r}
+density_plot <- ggplot(elev_df, aes(x = elevation_ft)) +
+  geom_density(fill = "steelblue", alpha = 0.6) +
+  labs(
+    title = "Elevation Distribution in Fort Collins (ft)",
+    x = "Elevation (feet)",
+    y = "Density"
+  ) +
+  theme_pubclean()
+
+density_plot
+```
+
+# Save Plot as PNG
+```{r}
+ggsave("elevation_density_plot.png", plot = density_plot, width = 7, height = 5, dpi = 300)
+```
+
+
+
+
